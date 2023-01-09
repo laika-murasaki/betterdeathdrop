@@ -1,6 +1,7 @@
 name: detterdeathdrop
 version: '${project.version}'
-main: detterdeathdrop.detterdeathdrop.detterdeathdrop
+main: betterdeathdrop.betterdeathdrop.BetterDeathDrop
 api-version: 1.19
 authors: [ laika ]
 website: https://hynse.xyz
+depend: [ ProtocolLib ]
