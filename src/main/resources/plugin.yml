@@ -1,0 +1,6 @@
+name: detterdeathdrop
+version: '${project.version}'
+main: detterdeathdrop.detterdeathdrop.detterdeathdrop
+api-version: 1.19
+authors: [ laika ]
+website: https://hynse.xyz
