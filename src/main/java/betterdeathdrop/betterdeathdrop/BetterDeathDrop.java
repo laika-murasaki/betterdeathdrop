@@ -1,58 +1,59 @@
 package betterdeathdrop.betterdeathdrop;
 
 import org.bukkit.Bukkit;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Item;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.ChatColor;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.EntityType;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.lang.reflect.InvocationTargetException;
+import java.io.File;
 
 public class BetterDeathDrop extends JavaPlugin implements Listener {
 
     private boolean preventDespawn;
-    private boolean makeGlowing;
-    private boolean showHologram;
     private int despawnTickTime;
 
     @Override
     public void onEnable() {
-        saveDefaultConfig();
+        // Check if the config.yml file is out of date
+        if (isOutdatedConfig()) {
+            // Save the default config.yml file
+            saveDefaultConfig();
+        }
+        getCommand("debugtickdespawnnear").setExecutor(new DebugTickDespawnNearCommand());
+
         preventDespawn = getConfig().getBoolean("prevent-despawn");
-        makeGlowing = getConfig().getBoolean("make-glowing");
-        showHologram = getConfig().getBoolean("show-hologram");
         despawnTickTime = getConfig().getInt("despawn-tick-time");
         Bukkit.getPluginManager().registerEvents(this, this);
     }
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
-        if (showHologram) {
-            Location loc = event.getEntity().getLocation();
-            World world = event.getEntity().getWorld();
-            ArmorStand armorStand = (ArmorStand) world.spawnEntity(loc, EntityType.ARMOR_STAND);
-            armorStand.setCustomName(ChatColor.GOLD + "Item owner: " + event.getEntity().getName());
-            armorStand.setCustomNameVisible(true);
-            armorStand.setGravity(false);
-            armorStand.setVisible(false);
+        // Get the player who died
+        Player player = event.getEntity();
+
+        // Drop the player's items
+        event.getDrops().forEach(itemStack -> player.getWorld().dropItem(player.getLocation(), itemStack).setTicksLived(preventDespawn ? despawnTickTime : 0));
+    }
+
+    private boolean isOutdatedConfig() {
+        File configFile = new File(getDataFolder(), "config.yml");
+        // Check if the config.yml file does not exist
+        if (!configFile.exists()) {
+            return true;
         }
-        for (ItemStack itemStack : event.getDrops()) {
-            Item item = event.getEntity().getWorld().dropItem(event.getEntity().getLocation(), itemStack);
-            if (preventDespawn) {
-                item.setTicksLived(despawnTickTime);
-            }
-            if (makeGlowing) {
-                ItemGlow.makeItemGlow(itemStack, event.getEntity());
-            }
+
+        // Read the config.yml file and check the version
+        try {
+            YamlConfiguration config = YamlConfiguration.loadConfiguration(configFile);
+            String configVersion = config.getString("config-version");
+            String currentConfigVersion = getConfig().getString("config-version");
+            // Compare the versions and return true if the config.yml file is out of date
+            return !configVersion.equals(currentConfigVersion);
+        } catch (Exception e) {
+            // An error occurred while reading the config.yml file, so return true to save the default config.yml file
+            return true;
         }
     }
 }

@@ -1,14 +1,11 @@
-# Set to true to prevent dropped items from despawning
+# This is the configuration file for the BetterDeathDrop plugin
+
+# Set this to true to prevent items from despawning when they are dropped
 prevent-despawn: true
 
-# The number of ticks after which dropped items should despawn.
-# A higher value means the items will take longer to despawn.
-# 36000 = 30 min / 20 tick = 1 second
-despawn-tick-time: 36000
+# If prevent-despawn is set to true, this determines how many ticks the items will live before they despawn
+# 1 tick is equal to 1/20 of a second
+despawn-tick-time: 6000
 
-# Set to true to make dropped items appear as if they are glowing
-make-glowing: true
-
-# Set to true to show a hologram displaying the player's name above the dropped items
-show-hologram: false
-
+# This is the version of the config.yml file DON'T TOUCH
+config-version: 1.0
